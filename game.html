@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Chicken Balls</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #f7e4b5;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #ffcc66;
+            display: block;
+            margin: auto;
+            max-width: 100%;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .control-button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            margin: 0 10px;
+            border: none;
+            background-color: #ff9800;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        /* Popup Aturan */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 10;
+        }
+        .popup button {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Catch the Chicken Balls!</h1>
+    <p>Gunakan tombol panah kiri dan kanan atau tombol di layar untuk menangkap bola ayam.</p>
+
+    <!-- Pop-up Aturan Game -->
+    <div id="gameRules" class="popup">
+        <h2>Aturan Permainan</h2>
+        <p>1️⃣ Raih minimal **score 50** dalam waktu **30 detik**.</p>
+        <p>2️⃣ Gunakan tombol **⬅ dan ➡ di layar** atau **Arrow Keys** pada keyboard.</p>
+        <button onclick="closePopup()">Mulai</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">
+        <button class="control-button" onclick="movePlayer('left')">⬅</button>
+        <button class="control-button" onclick="movePlayer('right')">➡</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth * 0.7;
+        canvas.height = window.innerHeight * 0.7;
+
+        let player = { x: canvas.width / 2 - 50, y: canvas.height - 100, width: 100, height: 100, speed: 80 };
+        let balls = [];
+        let bombs = [];
+        let score = 0;
+        let gameTime = 30;
+        let startTime;
+        let gameRunning = false; 
+
+        const playerImg = new Image();
+        playerImg.src = "chicken.png";
+        
+        const ballImg = new Image();
+        ballImg.src = "ball.png";
+        
+        const bombImg = new Image();
+        bombImg.src = "bomb.png";
+
+        function spawnBall() {
+            balls.push({ x: Math.random() * (canvas.width - 20), y: 0, radius: 25, speed: 3 + Math.random() * 5 });
+        }
+
+        function spawnBomb() {
+            bombs.push({ x: Math.random() * (canvas.width - 20), y: 0, radius: 40, speed: 4 + Math.random() * 2 });
+        }
+
+        function movePlayer(direction) {
+            if (!gameRunning) return;
+            if (direction === 'left' && player.x > 0) player.x -= player.speed;
+            if (direction === 'right' && player.x < canvas.width - player.width) player.x += player.speed;
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+
+            balls.forEach(ball => {
+                ball.y += ball.speed;
+                ctx.drawImage(ballImg, ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
+            });
+            
+            bombs.forEach(bomb => {
+                bomb.y += bomb.speed;
+                ctx.drawImage(bombImg, bomb.x - bomb.radius, bomb.y - bomb.radius, bomb.radius * 2, bomb.radius * 2);
+            });
+
+            balls = balls.filter(ball => {
+                if (ball.y > canvas.height) return false;
+                if (ball.y + ball.radius >= player.y && ball.x >= player.x && ball.x <= player.x + player.width) {
+                    score++;
+                    return false;
+                }
+                return true;
+            });
+
+            bombs = bombs.filter(bomb => {
+                if (bomb.y > canvas.height) return false;
+                if (bomb.y + bomb.radius >= player.y && bomb.x >= player.x && bomb.x <= player.x + player.width) {
+                    score -= 2;
+                    return false;
+                }
+                return true;
+            });
+
+            ctx.fillStyle = "black";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 30);
+
+            if ((Date.now() - startTime) / 1000 >= gameTime) {
+                endGame();
+            } else {
+                requestAnimationFrame(updateGame);
+            }
+        }
+
+        function startGame() {
+            startTime = Date.now();
+            gameRunning = true;
+            setInterval(spawnBall, 200);
+            setInterval(spawnBomb, 600);
+            updateGame();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            alert("Waktu habis! Skor Anda: " + score);
+            if (score >= 50) {
+                window.location.href = "kartu_894q358udsj@43.html"; 
+            } else {
+                alert("Sayang sekali, Anda belum menang. Coba lagi!");
+            }
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") movePlayer("left");
+            if (event.key === "ArrowRight") movePlayer("right");
+        });
+
+        function closePopup() {
+            document.getElementById("gameRules").style.display = "none";
+            startGame();
+        }
+
+        // Tampilkan aturan sebelum game dimulai
+        window.onload = function() {
+            document.getElementById("gameRules").style.display = "block";
+        };
+    </script>
+
+</body>
+</html>

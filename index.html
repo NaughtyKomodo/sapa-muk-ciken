@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catch the Chicken Balls!</title>
+    <style>
+      body {
+        text-align: center;
+        background-color: #f7e4b5;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Container utama agar elemen tetap di tengah */
+      .main-container {
+        position: relative;
+        z-index: 2;
+        background: #f0ce7a;
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Memastikan semua elemen di tengah */
+        justify-content: center;
+        gap: 15px; /* Memberikan jarak antar elemen */
+      }
+
+      .game-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #d35400;
+
+        margin-bottom: 10px;
+      }
+
+      .game-image {
+        width: 300px;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .play-button {
+        background-color: #ff9800;
+        color: white;
+        font-size: 24px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 15px; /* Jarak dari gambar */
+        width: 200px; /* Agar tombol terlihat seimbang */
+        text-align: center;
+      }
+
+      .play-button:hover {
+        background-color: #e67e22;
+      }
+
+      /* Styling untuk gambar acak */
+      .floating-image {
+        position: absolute;
+        width: 80px;
+        height: auto;
+        transform: rotate(var(--rotation));
+        z-index: 1;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Container utama untuk menjaga posisi tetap -->
+    <div class="main-container">
+      <h1 class="game-title">Selamat Datang di Catch the Chicken Balls!</h1>
+      <img src="home.png" alt="Game Image" class="game-image" />
+      <button class="play-button" onclick="startGame()">Play</button>
+    </div>
+
+    <script>
+      function startGame() {
+        window.location.href = "game.html";
+      }
+
+      function getRandomPosition() {
+        let x = Math.random() * window.innerWidth;
+        let y = Math.random() * window.innerHeight;
+
+        // Cegah gambar muncul di tengah (sekitar elemen utama)
+        let centerX = window.innerWidth / 2;
+        let centerY = window.innerHeight / 2;
+        let buffer = 200; // Jarak aman dari tengah
+
+        if (x > centerX - buffer && x < centerX + buffer) {
+          x = x < centerX ? x - buffer : x + buffer;
+        }
+        if (y > centerY - buffer && y < centerY + buffer) {
+          y = y < centerY ? y - buffer : y + buffer;
+        }
+
+        return { x, y };
+      }
+
+      function createFloatingImage(src) {
+        let img = document.createElement("img");
+        img.src = src;
+        img.classList.add("floating-image");
+        let position = getRandomPosition();
+        img.style.left = `${position.x}px`;
+        img.style.top = `${position.y}px`;
+        img.style.setProperty("--rotation", `${Math.random() * 360}deg`);
+        document.body.appendChild(img);
+      }
+
+      const images = ["chicken.png", "bomb.png", "ball.png"];
+      for (let i = 0; i < 15; i++) {
+        createFloatingImage(images[Math.floor(Math.random() * images.length)]);
+      }
+    </script>
+  </body>
+</html>
